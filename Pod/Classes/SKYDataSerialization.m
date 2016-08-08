@@ -81,8 +81,25 @@ NSString *localFunctionName(NSString *remoteFunctionName)
 
 + (NSDate *)dateFromString:(NSString *)dateStr
 {
-    return [[self.class dateFormatter] dateFromString:dateStr];
+    NSArray<NSString *> *dateFormats = @[
+                                         @"yyyy-MM-dd'T'HH:mm:ss.SSSSSSZZZZZ",
+                                         @"yyyy-MM-dd'T'HH:mm:ssZZZZZ",
+                                         ];
+    for (NSString *dateFormat in dateFormats) {
+        NSDateFormatter *dateFormatter  = [[NSDateFormatter alloc] init];
+        dateFormatter.dateFormat = dateFormat;
+
+        NSDate *date = [dateFormatter dateFromString:dateStr];
+        if (date) {
+            return date;
+        }
+    }
+
+    @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                   reason:@"Unparsable date string"
+                                 userInfo:@{@"dateStr": dateStr}];
 }
+
 + (NSString *)stringFromDate:(NSDate *)date
 {
     return [[self.class dateFormatter] stringFromDate:date];
